@@ -1,0 +1,343 @@
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #eef2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+  }
+  h1, h2 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  h2 {
+      margin-top: 30px;
+      margin-bottom: 15px;
+  }
+  .hidden {
+    display: none !important;
+  }
+
+  /* --- Forms (Login & Task) --- */
+  .login-form, .task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  .login-form input[type="email"],
+  .login-form input[type="password"],
+  .task-form input[type="text"],
+  .task-form textarea,
+  .task-form select { /* Added select */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .login-form input:focus,
+  .task-form input:focus,
+  .task-form textarea:focus,
+  .task-form select:focus { /* Added select */
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+  .task-form textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+  .task-form label { /* Style for Assign To label */
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 5px;
+  }
+  #assignToContainer, #assignExistingTaskContainer { /* Apply to both new task and reassign containers */
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+  }
+  .login-form button,
+  .task-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  .login-form button:hover,
+  .task-form button:hover {
+    background-color: #0056b3;
+  }
+  .login-form button:disabled,
+  .task-form button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+  }
+  .error-message, .status-message { /* Added .status-message */
+    color: #dc3545;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  .success-message {
+      color: #28a745;
+  }
+
+  /* --- Dashboard Header --- */
+  .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+  }
+  .dashboard-header h2 {
+      margin: 0;
+      text-align: left;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+  }
+  .role-tag {
+      background-color: #6c757d;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-left: 10px;
+  }
+  .role-tag.role-admin { background-color: #dc3545; }
+  .role-tag.role-employee { background-color: #28a745; }
+
+  .logout-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+  }
+  .logout-btn:hover {
+    background-color: #5a6268;
+  }
+
+  /* --- Summary Cards --- */
+  .summary-cards {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  .card {
+    flex: 1;
+    min-width: 150px;
+    background-color: #e9f5ff;
+    border: 1px solid #cce5ff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #004085;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .card span {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  .card.to-do {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+  .card.done {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+
+
+  /* --- Task List --- */
+  .task-list-container {
+      margin-top: 20px; /* Separates the two lists for employee view */
+  }
+  #createdTaskList, #assignedTaskList, #allTaskList {
+    list-style: none;
+    padding: 0;
+  }
+  #createdTaskList li, #assignedTaskList li, #allTaskList li {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #createdTaskList li:hover, #assignedTaskList li:hover, #allTaskList li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  #createdTaskList li.loading, #assignedTaskList li.loading, #allTaskList li.loading,
+  #createdTaskList li.empty, #assignedTaskList li.empty, #allTaskList li.empty,
+  #createdTaskList li.error, #assignedTaskList li.error, #allTaskList li.error {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+    padding: 20px;
+  }
+  #createdTaskList li.error, #assignedTaskList li.error, #allTaskList li.error {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  #createdTaskList li.done, #assignedTaskList li.done, #allTaskList li.done {
+    text-decoration: line-through;
+    color: #888;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+  }
+  #createdTaskList li.done .task-content h3, #assignedTaskList li.done .task-content h3, #allTaskList li.done .task-content h3 {
+    color: #6c757d;
+  }
+  .task-content {
+    flex-grow: 1;
+  }
+  .task-content h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap; /* Allow wrapping for long owner info */
+  }
+  .task-owner {
+      font-size: 0.8em;
+      color: #6c757d;
+      font-weight: normal;
+  }
+  .task-content p {
+    margin: 0;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  .task-content small {
+    display: block;
+    margin-top: 8px;
+    color: #777;
+    font-size: 0.8rem;
+  }
+  .task-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .task-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Prevent button text from wrapping */
+  }
+  .task-actions button.toggle-status-btn {
+    background-color: #ffc107; /* Yellow for 'Mark Done' */
+    color: #333;
+  }
+  .task-actions button.toggle-status-btn:hover {
+    background-color: #e0a800;
+  }
+  .task-actions button.delete-btn {
+    background-color: #dc3545; /* Red */
+    color: white;
+  }
+  .task-actions button.delete-btn:hover {
+    background-color: #c82333;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .summary-cards {
+        flex-direction: column;
+    }
+    .card {
+        min-width: unset;
+        width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      padding: 20px;
+      margin: 10px;
+    }
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .dashboard-header h2 {
+        text-align: center;
+        width: 100%;
+        justify-content: center;
+    }
+    .logout-btn {
+        width: 100%;
+    }
+    #createdTaskList li, #assignedTaskList li, #allTaskList li {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .task-actions {
+      width: 100%;
+      justify-content: space-around;
+    }
+    .task-actions button {
+      flex-grow: 1;
+      padding: 10px;
+    }
+    .task-content h3 .task-owner {
+        display: block; /* Make owner info break to new line on small screens */
+        margin-top: 5px;
+    }
+  }
+</style>
